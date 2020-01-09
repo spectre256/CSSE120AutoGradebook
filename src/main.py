@@ -2,6 +2,7 @@
 # Last updated: 1/9/20
 #
 # This script finds students
+#
 
 import smtplib
 from email.mime.text import MIMEText
