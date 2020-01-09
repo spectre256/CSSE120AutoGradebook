@@ -7,7 +7,7 @@
 import smtplib
 from email.mime.text import MIMEText
 import csv
-
+import getpass
 
 def process_gradebook():
     # Percentage of students who have had the assignment graded needed for the assignment to be active
@@ -125,7 +125,7 @@ def find_active_assignments(grade_data):
 def setup():
     smtp_server = 'smtp.office365.com'
     port = 587
-    my_user = "kellyzc@rose-hulman.edu"
+    my_user = username+"@rose-hulman.edu"
     # my_pass = "password"
     server = smtplib.SMTP(smtp_server, port)
     server.connect(smtp_server, port)
@@ -146,9 +146,14 @@ def missing_string(missing_list):
 
 
 def send_reminder(name, target_email, missing_list, server):
-    my_email = "kellyzc@rose-hulman.edu"
+    my_email = username + "@rose-hulman.edu"
+
     # Uncomment for testing purposes
-    # target_email = "TEST EMAIL HERE"
+    if dry_run:
+        target_email = "fisherds@gmail.com"
+        print("Dry run email sent to:" + target_email + "  ONLY! not the student")
+
+
     msg = MIMEText("\nThis email was sent automatically, replies will be ignored.\n"#"\nThis is a test, please check the following list against the gradebook, and reply only if the list is incorrect.\n"
                    + "\nHello "+name+",\n\nYou are currently missing:\n\n"+missing_string(missing_list)
                    + " please submit these as soon as you can. Talk to your professor if you have any questions."
@@ -161,85 +166,7 @@ def send_reminder(name, target_email, missing_list, server):
     server.sendmail(my_email, target_email, msg.as_string())#target_email, msg.as_string())
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# TODO: 
-my_pass = "Your password"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# main()
+dry_run = True
+username = "fisherds"
+my_pass = getpass.getpass("Enter your password: ")
 process_gradebook()
