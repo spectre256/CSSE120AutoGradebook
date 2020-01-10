@@ -133,7 +133,6 @@ def setup():
     server.starttls()
     server.ehlo()
     server.login(my_user, my_pass)
-
     return server
 
 
