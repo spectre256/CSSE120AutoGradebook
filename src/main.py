@@ -9,6 +9,7 @@ from email.mime.text import MIMEText
 import csv
 import getpass
 
+
 def process_gradebook():
     # Percentage of students who have had the assignment graded needed for the assignment to be active
     gradebook_file = 'Gradebook.csv'
