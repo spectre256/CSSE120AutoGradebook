@@ -10,11 +10,9 @@ import os
 def main():
     root = tkinter.Tk()
     root.title('Input Option Selection')
-    # main_frame = tkinter.Frame(root, borderwidth=5, relief='groove')
-    root.geometry('300x225')
-    root.resizable(width=False, height=False)
+    # root.geometry('300x225')
     main_frame = ttk.Frame(root)
-    main_frame.pack(fill='both')
+    main_frame.pack(fill='both', padx=25, pady=25)
 
     ##############
     # Checkbuttons
@@ -24,7 +22,7 @@ def main():
     checkbutton_frame = ttk.Frame(main_frame)
     checkbutton_frame.grid_columnconfigure(0, weight=1)
     checkbutton_frame.grid_columnconfigure(1, weight=1)
-    checkbutton_frame.pack(fill='both', pady=10)
+    checkbutton_frame.pack(fill='both', pady=10, ipadx=100)
 
     # First checkbutton and label
     update_assignments_label = ttk.Label(checkbutton_frame, text='Update Assignments?')
@@ -55,7 +53,7 @@ def main():
     threshold_frame = ttk.Frame(main_frame)
     threshold_frame.grid_columnconfigure(0, weight=0)
     threshold_frame.grid_columnconfigure(1, weight=1)
-    threshold_frame.pack(fill='both')
+    threshold_frame.pack(fill='both', pady=20)
 
     # Percent threshold scale and labels
     percent_threshold_value_label = ttk.Label(threshold_frame, text='0%', font='Helvetica 18 bold')
@@ -87,8 +85,8 @@ def main():
     gradebook_path_label1.grid(row=0, column=0, sticky='w')
 
     gradebook_path_label2 = ttk.Label(gradebook_path_selection_frame, text='None', textvariable=gradebook_file,
-                                      font='Helvetica 8 bold', wraplength=280)
-    gradebook_path_label2.grid(row=1, columnspan=3)
+                                      font='Helvetica 8 bold')
+    gradebook_path_label2.grid(row=1, columnspan=3, pady=20)
 
     # TODO: add error handling
     gradebook_full_path = 'None Selected'
@@ -98,10 +96,11 @@ def main():
 
     def get_gradebook_path():
         nonlocal gradebook_full_path
-        max_path_characters = 40
+        max_path_characters = 70
         gradebook_path = tkinter.filedialog.askopenfilename(filetypes=[('csv', '.csv')], initialdir='.')
+        if gradebook_path == '':
+            gradebook_path = 'None Selected'
         gradebook_full_path = gradebook_path
-        print(gradebook_full_path)
         if len(gradebook_path) > max_path_characters:
             gradebook_path = '...'+gradebook_path[len(gradebook_path)-max_path_characters+3:len(gradebook_path)]
         return gradebook_path
@@ -128,6 +127,7 @@ def main():
         process_files(update_student_list_value.get(), update_assignments_value.get(), percent_threshold_value.get(),
                       gradebook_full_path)
 
+    root.resizable(width=False, height=False)
     root.mainloop()
 
 
