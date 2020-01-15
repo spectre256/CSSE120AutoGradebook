@@ -31,9 +31,9 @@ def main():
     update_assignments_value = tkinter.BooleanVar()
     update_assignments_value.set(False)
     update_assignments_checkbutton = ttk.Checkbutton(checkbutton_frame, variable=update_assignments_value,
-                                                     command=lambda: percent_threshold_scale.config(state=['disabled'])
+                                                     command=lambda: percent_threshold_scale.config()
                                                      if update_assignments_value.get() == 0
-                                                     else percent_threshold_scale.config(state=['normal']))
+                                                     else percent_threshold_scale.config())
     update_assignments_checkbutton.grid(row=1, column=1)
 
     # Second checkbutton and label
@@ -60,7 +60,7 @@ def main():
     percent_threshold_value_label.grid(row=0, column=1, rowspan=2)
 
     percent_threshold_value = tkinter.IntVar()
-    percent_threshold_scale = ttk.Scale(threshold_frame, from_=0, to=100, state='disabled',
+    percent_threshold_scale = ttk.Scale(threshold_frame, from_=0, to=100,
                                         variable=percent_threshold_value, command=lambda value:
                                         percent_threshold_value_label.config(text=str(int(float(value))) + '%'))
     percent_threshold_scale.grid(row=1)
