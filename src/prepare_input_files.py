@@ -8,9 +8,10 @@ import os
 
 
 def main():
+    default_percentage_threshold = 75
+
     root = tkinter.Tk()
-    root.title('Input Option Selection')
-    # root.geometry('300x225')
+    root.title('Prepare Input Files')
     main_frame = ttk.Frame(root)
     main_frame.pack(fill='both', padx=25, pady=25)
 
@@ -29,11 +30,19 @@ def main():
     update_assignments_label.grid(row=0, column=1)
 
     update_assignments_value = tkinter.BooleanVar()
+    percent_threshold_scale_active = False  # The update assignments checkbutton toggles the percentage threshold scale
     update_assignments_value.set(False)
-    update_assignments_checkbutton = ttk.Checkbutton(checkbutton_frame, variable=update_assignments_value,
-                                                     command=lambda: percent_threshold_scale.config()
-                                                     if update_assignments_value.get() == 0
-                                                     else percent_threshold_scale.config())
+
+    def toggle_percent_threshold_scale_active(*args):
+        nonlocal percent_threshold_scale_active
+        nonlocal percent_threshold_value_label
+        nonlocal default_percentage_threshold
+        percent_threshold_scale_active = not percent_threshold_scale_active
+        percent_threshold_value_label.config(text=str(default_percentage_threshold) + '%')
+
+    update_assignments_value.trace('w', toggle_percent_threshold_scale_active)
+
+    update_assignments_checkbutton = ttk.Checkbutton(checkbutton_frame, variable=update_assignments_value)
     update_assignments_checkbutton.grid(row=1, column=1)
 
     # Second checkbutton and label
@@ -63,7 +72,16 @@ def main():
     percent_threshold_scale = ttk.Scale(threshold_frame, from_=0, to=100,
                                         variable=percent_threshold_value, command=lambda value:
                                         percent_threshold_value_label.config(text=str(int(float(value))) + '%'))
+    percent_threshold_scale.set(default_percentage_threshold)
     percent_threshold_scale.grid(row=1)
+
+    def percent_threshold_state_helper(*args):
+        nonlocal percent_threshold_scale_active
+        nonlocal percent_threshold_value
+        if not percent_threshold_scale_active:
+            percent_threshold_value.set(default_percentage_threshold)
+
+    percent_threshold_value.trace('w', percent_threshold_state_helper)
 
     percentage_threshold_text_label = ttk.Label(threshold_frame, text='Assignment Percentage Threshold:')
     percentage_threshold_text_label.grid(row=0, column=0)

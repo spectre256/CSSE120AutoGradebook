@@ -150,7 +150,7 @@ def send_reminder(name, target_email, missing_list, server):
 
     # Uncomment for testing purposes
     if dry_run:
-        target_email = "fisherds@gmail.com"
+        target_email = "zzzz14767@gmail.com"
         print("Dry run email sent to:" + target_email + "  ONLY! not the student")
 
 
@@ -167,6 +167,6 @@ def send_reminder(name, target_email, missing_list, server):
 
 
 dry_run = True
-username = "fisherds"
+username = "kellyzc"
 my_pass = getpass.getpass("Enter your password: ")
 process_gradebook()
