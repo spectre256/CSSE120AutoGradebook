@@ -1,12 +1,12 @@
 # Made by Zach Kelly
-# Last updated 1/11/20
+# Last updated 1/18/20
 
 import tkinter
 from tkinter import ttk, filedialog
 import csv
 import os
 
-
+#TODO: Fix the scale not moving to default when disabled
 def main():
     default_percentage_threshold = 75
 
@@ -38,7 +38,9 @@ def main():
         nonlocal percent_threshold_value_label
         nonlocal default_percentage_threshold
         percent_threshold_scale_active = not percent_threshold_scale_active
-        percent_threshold_value_label.config(text=str(default_percentage_threshold) + '%')
+        if not percent_threshold_scale_active:
+            percent_threshold_scale.set(default_percentage_threshold)
+            percent_threshold_value_label.config(text=str(default_percentage_threshold) + '%')
 
     update_assignments_value.trace('w', toggle_percent_threshold_scale_active)
 
