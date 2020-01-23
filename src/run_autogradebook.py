@@ -44,7 +44,7 @@ def main():
     minimum_missing_label = ttk.Label(misc_options_frame, text='Minimum Missing Assignments')
     minimum_missing_label.grid(row=0, column=0)
 
-    def minimum_missing_helper(minimum_missing_spinbox, num_assignments):
+    def minimum_missing_helper():
         try:
             int(minimum_missing_spinbox.get())
         except ValueError:
@@ -56,9 +56,9 @@ def main():
 
     minimum_missing_value = tkinter.IntVar()
     minimum_missing_spinbox = ttk.Spinbox(misc_options_frame, from_=0, to=num_assignments, textvariable=minimum_missing_value)#command=lambda: minimum_missing_helper(minimum_missing_spinbox, num_assignments))
-    minimum_missing_spinbox.set(0)
+    minimum_missing_spinbox.set(5)
     minimum_missing_spinbox.grid(row=1, column=0)
-    minimum_missing_value.trace('w', lambda *args: minimum_missing_helper(minimum_missing_spinbox, num_assignments))
+    minimum_missing_value.trace('w', lambda *args: minimum_missing_helper())
 
     ###############
     # Email options
@@ -82,24 +82,16 @@ def main():
     sender_password_entry = ttk.Entry(email_options_frame, show='*')
     sender_password_entry.grid(row=1, column=1)
 
-    # # CC Emails
-    # cc_emails_label = ttk.Label(email_options_frame, text='CC Emails:')
-    # cc_emails_label.grid(row=2, column=0, sticky='w')
-    # cc_emails_value = tkinter.StringVar()
-    # cc_emails_entry = ttk.Entry(email_options_frame, textvariable=cc_emails_value)
-    # cc_emails_value.set('email 1, email 2, etc.')
-    # cc_emails_entry.grid(row=2, column=1)
-
     # Email host
     email_host_label = ttk.Label(email_options_frame, text='Email Host:')
     email_host_label.grid(row=0, column=2)
     email_host_value = ttk.Combobox(email_options_frame, values=['Gmail','Outlook','Yahoo'], state='readonly')
-    email_host_value.set('Gmail')
+    email_host_value.set('Outlook')
     email_host_value.grid(row=1, column=2)
 
     # Email message format
     #TODO
-    email_parameter_list = []
+    email_parameter_list = [None, None, None]
     email_format_button = ttk.Button(email_options_frame, text='Change Message Format', command=lambda: email_format_window(root, email_parameter_list))
     email_format_button.grid(row=2, columnspan=3, pady=10)
 
@@ -119,7 +111,7 @@ def main():
     gradebook_path_label1 = ttk.Label(gradebook_path_selection_frame, text='Current Gradebook Path:')
     gradebook_path_label1.grid(row=0, column=0, sticky='w')
 
-    gradebook_path_label2 = ttk.Label(gradebook_path_selection_frame, text='None', textvariable=gradebook_file,
+    gradebook_path_label2 = ttk.Label(gradebook_path_selection_frame, text='None Selected', textvariable=gradebook_file,
                                       font='Helvetica 8 bold')
     gradebook_path_label2.grid(row=1, columnspan=3, pady=20)
 
@@ -215,6 +207,7 @@ def main():
         sender_email_entry.get()
         sender_password_entry.get()
         email_host_value.get()
+        print(email_parameter_list)
         # process_files('update_student_list_value.get()', 'update_assignments_value.get()', 'percent_threshold_value.get()',
         #               gradebook_full_path)
 
@@ -247,18 +240,25 @@ def email_format_window(root, email_parameter_list):
     cc_emails_value.set('ex1@email.com, ex2@email.com, etc.')
     cc_emails_entry.grid(row=1, column=1, sticky='ew')
 
+    email_label = ttk.Label(email_message_frame, text='\'[NAME]\' will insert a student\'s name,' +
+                                                      ' and \'[ASSIGNMENTS]\' will insert the missing assignment list')
+    email_label.grid(row=2, columnspan=2)
+
     email = tkinter.Text(email_message_frame, wrap="word")
-    email.insert(tkinter.INSERT,"\nThis email was sent automatically, replies will be ignored.\n"#"\nThis is a test, please check the following list against the gradebook, and reply only if the list is incorrect.\n"
-                   + "\nHello "+"[NAME]"+",\n\nYou are currently missing:\n\n"+"[MISSING ASSIGNMENT LIST]\n\n"
-                   + "please submit these as soon as you can. Talk to your professor if you have any questions."
-                   + " Remember, you must turn in ALL assignments to pass the class!\n\nThank you,\nZach Kelly\n"
-                   + "CSSE120 Grader")
-    email.grid(row=2, column=0, columnspan=2)
+    email.insert(tkinter.INSERT, "This email was sent automatically, replies will be ignored.\n\nHello [NAME],\n\nYou are currently missing:\n\n[ASSIGNMENTS]\n\nplease submit these as soon as you can. Talk to your professor if you have any questions. Remember, you must turn in ALL assignments to pass the class!\n\nThank you,\nZach Kelly\nCSSE120 Grader")
+    email.grid(row=3, column=0, columnspan=2)
 
     # action buttons
     def ok_helper():
+        nonlocal email_parameter_list
         #TODO
-        email_parameter_list = [None, None]
+        email_parameter_list[0:2] = [subject_value.get(), cc_emails_value.get(), email.get('0.0', tkinter.END)]
+        email_format_toplevel.grab_release()
+        email_format_toplevel.destroy()
+
+    def quit_helper():
+        email_format_toplevel.grab_release()
+        email_format_toplevel.destroy()
 
     action_button_frame = ttk.Frame(email_format_toplevel)
     action_button_frame.grid_columnconfigure(0, weight=1)
@@ -268,7 +268,7 @@ def email_format_window(root, email_parameter_list):
     ok_button = ttk.Button(action_button_frame, text='Ok', command=lambda: ok_helper())
     ok_button.grid(row=3, column=0, pady=10)
 
-    cancel_button = ttk.Button(action_button_frame, text='Cancel', command=lambda: email_format_toplevel.quit())
+    cancel_button = ttk.Button(action_button_frame, text='Cancel', command=lambda: quit_helper())
     cancel_button.grid(row=3, column=1, pady=10)
 
     email_format_toplevel.resizable = False
@@ -276,8 +276,6 @@ def email_format_window(root, email_parameter_list):
 
     email_format_toplevel.focus_set()
     email_format_toplevel.grab_set()
-    email_format_toplevel.wait_window()
-    email_format_toplevel.grab_release()
 
 # def process_files(update_student_list, update_assignments, assignment_percentage_threshold, gradebook_path):
 #     if gradebook_path == 'None Selected':

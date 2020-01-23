@@ -1,0 +1,19 @@
+Do not change the following labels, you will break the scripts.
+
+#Test Run
+0
+#Minimum Missing Assignments
+5
+#Email Host
+Outlook
+#Email Subject
+Missing CSSE120 Assignments
+#CC Emails
+ex1@email.com, ex2@email.com, etc.
+#Email Message
+This email was sent automatically, replies will be ignored.\n\nHello [NAME],\n\nYou are currently missing:\n\n[ASSIGNMENTS]\n\nplease submit these as soon as you can. Talk to your professor if you have any questions. Remember, you must turn in ALL assignments to pass the class!\n\nThank you,\nZach Kelly\nCSSE120 Grader"
+#Gradebook Path
+None Selected
+#Student List Path
+All Students
+
