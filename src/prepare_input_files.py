@@ -1,14 +1,16 @@
 # Made by Zach Kelly
-# Last updated 1/18/20
+# Last updated 1/24/20
 
+from src.common_code import *
 import tkinter
 from tkinter import ttk, filedialog
 import csv
 import os
 
-#TODO: Fix the scale not moving to default when disabled
+defaults = extract_defaults()
+
+
 def main():
-    default_percentage_threshold = 75
 
     root = tkinter.Tk()
     root.title('Prepare Input Files')
@@ -30,17 +32,17 @@ def main():
     update_assignments_label.grid(row=0, column=1)
 
     update_assignments_value = tkinter.BooleanVar()
-    percent_threshold_scale_active = False  # The update assignments checkbutton toggles the percentage threshold scale
-    update_assignments_value.set(False)
+    # The update assignments checkbutton toggles the percentage threshold scale
+    percent_threshold_scale_active = int(defaults['Update Assignments'])
+    update_assignments_value.set(int(defaults['Update Assignments']))
 
     def toggle_percent_threshold_scale_active(*args):
         nonlocal percent_threshold_scale_active
         nonlocal percent_threshold_value_label
-        nonlocal default_percentage_threshold
         percent_threshold_scale_active = not percent_threshold_scale_active
         if not percent_threshold_scale_active:
-            percent_threshold_scale.set(default_percentage_threshold)
-            percent_threshold_value_label.config(text=str(default_percentage_threshold) + '%')
+            percent_threshold_scale.set(int(defaults['Default Percentage Threshold']))
+            percent_threshold_value_label.config(text=str(int(defaults['Default Percentage Threshold'])) + '%')
 
     update_assignments_value.trace('w', toggle_percent_threshold_scale_active)
 
@@ -52,7 +54,7 @@ def main():
     student_list_label.grid(row=0, column=0)
 
     update_student_list_value = tkinter.BooleanVar()
-    update_student_list_value.set(False)
+    update_student_list_value.set(int(defaults['Update Student List']))
     update_student_list_checkbutton = ttk.Checkbutton(checkbutton_frame, variable=update_student_list_value)
     update_student_list_checkbutton.grid(row=1, column=0)
 
@@ -67,21 +69,19 @@ def main():
     threshold_frame.pack(fill='both', pady=20)
 
     # Percent threshold scale and labels
-    percent_threshold_value_label = ttk.Label(threshold_frame, text='0%', font='Helvetica 18 bold')
+    percent_threshold_value_label = ttk.Label(threshold_frame, font='Helvetica 18 bold')
     percent_threshold_value_label.grid(row=0, column=1, rowspan=2)
 
     percent_threshold_value = tkinter.IntVar()
     percent_threshold_scale = ttk.Scale(threshold_frame, from_=0, to=100,
                                         variable=percent_threshold_value, command=lambda value:
                                         percent_threshold_value_label.config(text=str(int(float(value))) + '%'))
-    percent_threshold_scale.set(default_percentage_threshold)
+    percent_threshold_scale.set(int(defaults['Default Percentage Threshold']))
     percent_threshold_scale.grid(row=1)
 
     def percent_threshold_state_helper(*args):
-        nonlocal percent_threshold_scale_active
-        nonlocal percent_threshold_value
         if not percent_threshold_scale_active:
-            percent_threshold_value.set(default_percentage_threshold)
+            percent_threshold_value.set(int(defaults['Default Percentage Threshold']))
 
     percent_threshold_value.trace('w', percent_threshold_state_helper)
 
@@ -100,16 +100,16 @@ def main():
 
     # Gradebook path selection button and labels
     gradebook_file = tkinter.StringVar()
-    gradebook_file.set('None Selected')
+    gradebook_file.set(defaults['Gradebook Path'])
     gradebook_path_label1 = ttk.Label(gradebook_path_selection_frame, text='Current Gradebook Path:')
     gradebook_path_label1.grid(row=0, column=0, sticky='w')
 
-    gradebook_path_label2 = ttk.Label(gradebook_path_selection_frame, text='None', textvariable=gradebook_file,
+    gradebook_path_label2 = ttk.Label(gradebook_path_selection_frame, textvariable=gradebook_file,
                                       font='Helvetica 8 bold')
     gradebook_path_label2.grid(row=1, columnspan=3, pady=20)
 
     # TODO: add error handling
-    gradebook_full_path = 'None Selected'
+    gradebook_full_path = defaults['Gradebook Path']
     gradebook_path_button = ttk.Button(gradebook_path_selection_frame, text='Select File',
                                        command=lambda: gradebook_file.set(get_gradebook_path()))
     gradebook_path_button.grid(row=0, column=1)
@@ -119,7 +119,7 @@ def main():
         max_path_characters = 70
         gradebook_path = tkinter.filedialog.askopenfilename(filetypes=[('csv', '.csv')], initialdir='.')
         if gradebook_path == '':
-            gradebook_path = 'None Selected'
+            gradebook_path = defaults['Gradebook Path']
         gradebook_full_path = gradebook_path
         if len(gradebook_path) > max_path_characters:
             gradebook_path = '...'+gradebook_path[len(gradebook_path)-max_path_characters+3:len(gradebook_path)]
@@ -152,7 +152,7 @@ def main():
 
 
 def process_files(update_student_list, update_assignments, assignment_percentage_threshold, gradebook_path):
-    if gradebook_path == 'None Selected':
+    if gradebook_path == defaults['Gradebook Path']:
         return
 
     with open(gradebook_path) as gradebook:
@@ -192,7 +192,7 @@ def create_assignments_list(grade_data, assignment_percentage_threshold):
     emails_column = categories.index('Email address')
     for category in range(emails_column+1, len(categories)):
         if not contains_excluded_phrase(categories[category]):
-            percent_complete = calculate_precent_complete(grade_data, category)
+            percent_complete = calculate_percent_complete(grade_data, category)
             will_be_processed = percent_complete >= assignment_percentage_threshold
             assignments_list.write('\"'+categories[category]+'\"'+','+str(percent_complete)+','+str(will_be_processed))
             if not category == len(categories)-1:
@@ -201,14 +201,14 @@ def create_assignments_list(grade_data, assignment_percentage_threshold):
 
 
 def contains_excluded_phrase(category):
-    excluded_category_phrases = ['total', 'Last downloaded from this course']
+    excluded_category_phrases = defaults['Excluded Category Phrases'].split(',')
     for phrase in excluded_category_phrases:
         if phrase in category:
             return 1
     return 0
 
 
-def calculate_precent_complete(grade_data, assignment_index):
+def calculate_percent_complete(grade_data, assignment_index):
     number_complete = 0
     for student in range(1, len(grade_data)):
         if not (grade_data[student][assignment_index] == 0 or grade_data[student][assignment_index] == '-'):

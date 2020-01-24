@@ -1,19 +1,41 @@
 Do not change the following labels, you will break the scripts.
+A pound sign indicates a line with the name of an option, and a dash indicates a value.
 
+#Default Percentage Threshold
+\\70
+#Update Student List
+\\0
+#Update Assignments
+\\0
 #Test Run
-0
-#Minimum Missing Assignments
-5
+\\0
+#Minimum Missing Assignments Maximum
+\\100
+#Minimum Missing Assignments Default
+\\5
 #Email Host
-Outlook
+\\Outlook
 #Email Subject
-Missing CSSE120 Assignments
+\\Missing CSSE120 Assignments
 #CC Emails
-ex1@email.com, ex2@email.com, etc.
+\\ex1@email.com, ex2@email.com, etc.
 #Email Message
-This email was sent automatically, replies will be ignored.\n\nHello [NAME],\n\nYou are currently missing:\n\n[ASSIGNMENTS]\n\nplease submit these as soon as you can. Talk to your professor if you have any questions. Remember, you must turn in ALL assignments to pass the class!\n\nThank you,\nZach Kelly\nCSSE120 Grader"
+\\This email was sent automatically, replies will be ignored.
+
+Hello [NAME],
+
+You are currently missing:
+
+[ASSIGNMENTS]
+
+please submit these as soon as you can. Talk to your professor if you have any questions. Remember, you must turn in ALL assignments to pass the class!
+
+Thank you,
+CSSE120 Grader
 #Gradebook Path
-None Selected
+\\None Selected
 #Student List Path
-All Students
+\\All Students
+#Excluded Category Phrases
+\\total,Last downloaded from this course
 
