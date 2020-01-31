@@ -49,7 +49,7 @@ CSSE120 Grader
 \\smtp.office365.com
 #Outlook Port
 \\587
-#Yahoo SMTP
+#Yahoo SMTP (doesn't work right now)
 \\smtp.mail.yahoo.com
 #Yahoo Port
 \\587

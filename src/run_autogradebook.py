@@ -86,7 +86,7 @@ def main():
     email_host_label = ttk.Label(email_options_frame, text='Email Host:')
     email_host_label.grid(row=0, column=2)
     # TODO move host list to defaults
-    email_host_value = ttk.Combobox(email_options_frame, values=['Gmail', 'Outlook', 'Yahoo'], state='readonly')
+    email_host_value = ttk.Combobox(email_options_frame, values=['Gmail', 'Outlook'], state='readonly')#, 'Yahoo'], state='readonly')
     email_host_value.set(defaults['Email Host'])
     email_host_value.grid(row=1, column=2)
 
@@ -363,7 +363,7 @@ def auto_grade(students, grades, assignments, test_run, percent, min_missing, se
     assignments_list = extract_assignments_list(assignments, percent, grade_list)
     students_list = extract_students_list(students, grade_list)
     missing_assignments_list = extract_missing_assignments(students_list, grade_list, assignments_list)
-    email_setup(sender, password, host)
+    server = server_setup(sender, password, host)
     #TODO
 
 
@@ -420,10 +420,22 @@ def extract_missing_assignments(students_list, grade_list, assignments_list): # 
     return student_assignment_dict
 
 
-def email_setup(sender_email, sender_password, host):
-    #TODO
-    pass
+def server_setup(sender_email, sender_password, host):
+    smtp_server = defaults[host + ' SMTP']
+    port = int(defaults[host + ' Port'])
+    server = smtplib.SMTP_SSL(smtp_server, port)
+    server.connect(smtp_server, port)
+    server.ehlo()
+    server.starttls()
+    server.ehlo()
+    try:
+        server.login(sender_email, sender_password)
+    except:
+        print('Email login failed!')
+        if host == 'Gmail':
+            print('You need an app password to use gmail with this program:' +
+                  '\nhttps://support.google.com/accounts/answer/185833')
+    return server
 
 
-# main()
-test_email_host(defaults, 'Yahoo', None, None)
+main()

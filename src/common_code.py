@@ -34,7 +34,7 @@ def calculate_percent_complete(grade_data, assignment_index):
 def test_email_host(defaults, host, email, password):
     smtp_server = defaults[host+' SMTP']
     port = int(defaults[host+' Port'])
-    server = smtplib.SMTP('smtp.mail.yahoo.com', 587)
+    server = smtplib.SMTP_SSL(smtp_server, port)
     server.connect(smtp_server, port)
     server.ehlo()
     server.starttls()
