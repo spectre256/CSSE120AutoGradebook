@@ -15,7 +15,7 @@ def main():
     root = tkinter.Tk()
     root.title('Prepare Input Files')
     main_frame = ttk.Frame(root)
-    main_frame.pack(fill='both', padx=25, pady=25)
+    main_frame.pack(fill='both', padx=10, pady=25)
 
     ##############
     # Checkbuttons
@@ -25,10 +25,10 @@ def main():
     checkbutton_frame = ttk.Frame(main_frame)
     checkbutton_frame.grid_columnconfigure(0, weight=1)
     checkbutton_frame.grid_columnconfigure(1, weight=1)
-    checkbutton_frame.pack(fill='both', pady=10, ipadx=100)
+    checkbutton_frame.pack(fill='both', pady=10)#, ipadx=100)
 
     # First checkbutton and label
-    update_assignments_label = ttk.Label(checkbutton_frame, text='Update Assignments?')
+    update_assignments_label = ttk.Label(checkbutton_frame, text='Update Assignments?', anchor=tkinter.CENTER)
     update_assignments_label.grid(row=0, column=1)
 
     update_assignments_value = tkinter.BooleanVar()
@@ -50,7 +50,7 @@ def main():
     update_assignments_checkbutton.grid(row=1, column=1)
 
     # Second checkbutton and label
-    student_list_label = ttk.Label(checkbutton_frame, text='Update Student List?')
+    student_list_label = ttk.Label(checkbutton_frame, text='Update Student List?', anchor=tkinter.CENTER)
     student_list_label.grid(row=0, column=0)
 
     update_student_list_value = tkinter.BooleanVar()
@@ -64,12 +64,12 @@ def main():
 
     # Percent threshold frame
     threshold_frame = ttk.Frame(main_frame)
-    threshold_frame.grid_columnconfigure(0, weight=0)
+    threshold_frame.grid_columnconfigure(0, weight=1)
     threshold_frame.grid_columnconfigure(1, weight=1)
     threshold_frame.pack(fill='both', pady=20)
 
     # Percent threshold scale and labels
-    percent_threshold_value_label = ttk.Label(threshold_frame, font='Helvetica 18 bold')
+    percent_threshold_value_label = ttk.Label(threshold_frame, font='Helvetica 18 bold', anchor=tkinter.CENTER, width=5)
     percent_threshold_value_label.grid(row=0, column=1, rowspan=2)
 
     percent_threshold_value = tkinter.IntVar()
@@ -85,7 +85,7 @@ def main():
 
     percent_threshold_value.trace('w', percent_threshold_state_helper)
 
-    percentage_threshold_text_label = ttk.Label(threshold_frame, text='Assignment Percentage Threshold:')
+    percentage_threshold_text_label = ttk.Label(threshold_frame, text='Assignment Percentage Threshold:', anchor=tkinter.CENTER)
     percentage_threshold_text_label.grid(row=0, column=0)
 
     ###############################
@@ -101,11 +101,11 @@ def main():
     # Gradebook path selection button and labels
     gradebook_file = tkinter.StringVar()
     gradebook_file.set(defaults['Gradebook Path'])
-    gradebook_path_label1 = ttk.Label(gradebook_path_selection_frame, text='Current Gradebook Path:')
-    gradebook_path_label1.grid(row=0, column=0, sticky='w')
+    gradebook_path_label1 = ttk.Label(gradebook_path_selection_frame, text='Current Gradebook Path:', anchor=tkinter.CENTER)
+    gradebook_path_label1.grid(row=0, column=0, sticky='ew')
 
     gradebook_path_label2 = ttk.Label(gradebook_path_selection_frame, textvariable=gradebook_file,
-                                      font='Helvetica 8 bold')
+                                      font='Helvetica 8 bold', width=75, anchor=tkinter.CENTER)
     gradebook_path_label2.grid(row=1, columnspan=3, pady=20)
 
     # TODO: add error handling
@@ -191,29 +191,13 @@ def create_assignments_list(grade_data, assignment_percentage_threshold):
     categories = grade_data[0]
     emails_column = categories.index('Email address')
     for category in range(emails_column+1, len(categories)):
-        if not contains_excluded_phrase(categories[category]):
+        if not contains_excluded_phrase(categories[category], defaults):
             percent_complete = calculate_percent_complete(grade_data, category)
             will_be_processed = percent_complete >= assignment_percentage_threshold
             assignments_list.write('\"'+categories[category]+'\"'+','+str(percent_complete)+','+str(will_be_processed))
             if not category == len(categories)-1:
                 assignments_list.write('\n')
     assignments_list.close()
-
-
-def contains_excluded_phrase(category):
-    excluded_category_phrases = defaults['Excluded Category Phrases'].split(',')
-    for phrase in excluded_category_phrases:
-        if phrase in category:
-            return 1
-    return 0
-
-
-def calculate_percent_complete(grade_data, assignment_index):
-    number_complete = 0
-    for student in range(1, len(grade_data)):
-        if not (grade_data[student][assignment_index] == 0 or grade_data[student][assignment_index] == '-'):
-            number_complete = number_complete+1
-    return round(number_complete/(len(grade_data)-1)*100, 2)  # The only non-student row is the header
 
 
 main()

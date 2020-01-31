@@ -1,4 +1,5 @@
 Do not change the following labels, you will break the scripts.
+Do not leave any empty lines after the last option
 A pound sign indicates a line with the name of an option, and a dash indicates a value.
 
 #Default Percentage Threshold
@@ -36,6 +37,19 @@ CSSE120 Grader
 \\None Selected
 #Student List Path
 \\All Students
+#Assignments Path
+\\Calculate Using Selected Percent
 #Excluded Category Phrases
 \\total,Last downloaded from this course
-
+#Gmail SMTP
+\\smtp.gmail.com
+#Gmail Port
+\\587
+#Outlook SMTP
+\\smtp.office365.com
+#Outlook Port
+\\587
+#Yahoo SMTP
+\\smtp.mail.yahoo.com
+#Yahoo Port
+\\587

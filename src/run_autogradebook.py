@@ -4,17 +4,18 @@
 from src.common_code import *
 import tkinter
 from tkinter import ttk, filedialog
+import csv
+import smtplib
 
 # TODO fix duped code between both scripts
 # TODO standardize padding and such
 # TODO remove unnecessary lambdas
 
-
+defaults = extract_defaults()
 def main():
-    defaults = extract_defaults()
 
     root = tkinter.Tk()
-    root.title('Prepare Input Files')
+    root.title('Choose Autograde Settings')
     main_frame = ttk.Frame(root)
     main_frame.pack(fill='both', padx=25, pady=25)
 
@@ -84,6 +85,7 @@ def main():
     # Email host
     email_host_label = ttk.Label(email_options_frame, text='Email Host:')
     email_host_label.grid(row=0, column=2)
+    # TODO move host list to defaults
     email_host_value = ttk.Combobox(email_options_frame, values=['Gmail', 'Outlook', 'Yahoo'], state='readonly')
     email_host_value.set(defaults['Email Host'])
     email_host_value.grid(row=1, column=2)
@@ -160,7 +162,7 @@ def main():
     def get_student_list_path():
         nonlocal student_list_full_path
         max_path_characters = 65
-        student_list_path = tkinter.filedialog.askopenfilename(filetypes=[('csv', '.csv')], initialdir='.')
+        student_list_path = tkinter.filedialog.askopenfilename(filetypes=[('txt', '.txt')], initialdir='.')
         if student_list_path == '':
             student_list_path = defaults['Student List Path']
         student_list_full_path = student_list_path
@@ -168,6 +170,79 @@ def main():
             student_list_path = '...' + student_list_path[
                                      len(student_list_path) - max_path_characters + 3:len(student_list_path)]
         return student_list_path
+
+    #################################
+    # Assignments file path selection
+    #################################
+
+    # Assignments path selection frame
+    assignments_path_selection_frame = ttk.Frame(main_frame)
+    assignments_path_selection_frame.grid_columnconfigure(0, weight=1)
+    assignments_path_selection_frame.grid_columnconfigure(1, weight=1)
+    assignments_path_selection_frame.pack(fill='both', pady=10)
+
+    # Assignment path selection button and labels
+    assignments_file = tkinter.StringVar()
+    assignments_file.set(defaults['Assignments Path'])
+    assignments_path_label1 = ttk.Label(assignments_path_selection_frame, text='Current Assignments Path:')
+    assignments_path_label1.grid(row=0, column=0, sticky='w')
+
+    assignments_path_label2 = ttk.Label(assignments_path_selection_frame, textvariable=assignments_file,
+                                         font='Helvetica 8 bold')
+    assignments_path_label2.grid(row=1, columnspan=3, pady=20)
+
+    # TODO: add error handling
+    assignments_full_path = defaults['Assignments Path']
+    assignments_path_button = ttk.Button(assignments_path_selection_frame, text='Select File',
+                                          command=lambda: assignments_file.set(get_assignments_path()))
+    assignments_path_button.grid(row=0, column=1)
+
+    def get_assignments_path():
+        nonlocal assignments_full_path
+        max_path_characters = 65
+        assignments_path = tkinter.filedialog.askopenfilename(filetypes=[('csv', '.csv')], initialdir='.')
+        if assignments_path == '':
+            assignments_path = defaults['Assignments Path']
+        assignments_full_path = assignments_path
+        if len(assignments_path) > max_path_characters:
+            assignments_path = '...' + assignments_path[
+                                        len(assignments_path) - max_path_characters + 3:len(assignments_path)]
+        return assignments_path
+
+    #############################
+    # Percent threshold selection
+    #############################
+
+    # Percent threshold frame
+    threshold_frame = ttk.Frame(main_frame)
+    threshold_frame.grid_columnconfigure(0, weight=1)
+    threshold_frame.grid_columnconfigure(1, weight=1)
+    threshold_frame.pack(fill='both', pady=20)
+
+    # Assignments file selection toggles the percentage threshold scale
+    def check_percent_threshold_scale_active(*args):
+        nonlocal percent_threshold_value_label
+        if assignments_file.get() != defaults['Assignments Path']:
+            percent_threshold_scale.set(int(defaults['Default Percentage Threshold']))
+            percent_threshold_value_label.config(text=str(int(defaults['Default Percentage Threshold'])) + '%')
+            percent_threshold_value.set(int(defaults['Default Percentage Threshold']))
+
+    assignments_file.trace('w', check_percent_threshold_scale_active)
+
+    # Percent threshold scale and labels
+    percent_threshold_value_label = ttk.Label(threshold_frame, font='Helvetica 18 bold', anchor=tkinter.CENTER, width=5)
+    percent_threshold_value_label.grid(row=0, column=1, rowspan=2)
+
+    percent_threshold_value = tkinter.IntVar()
+    percent_threshold_scale = ttk.Scale(threshold_frame, from_=0, to=100,
+                                        variable=percent_threshold_value, command=lambda value:
+                                        percent_threshold_value_label.config(text=str(int(float(value))) + '%'))
+    percent_threshold_scale.set(int(defaults['Default Percentage Threshold']))
+    percent_threshold_scale.grid(row=1)
+    percent_threshold_value.trace('w', check_percent_threshold_scale_active)
+
+    percentage_threshold_text_label = ttk.Label(threshold_frame, text='Assignment Percentage Threshold:', anchor=tkinter.CENTER)
+    percentage_threshold_text_label.grid(row=0, column=0)
 
     #######################
     # action buttons
@@ -192,28 +267,13 @@ def main():
         message = 2
 
         root.quit()
-        auto_grade(student_list_full_path, gradebook_full_path, test_run_value.get(),
-                   int(minimum_missing_spinbox.get()), sender_email_entry.get(), sender_password_entry.get(),
-                   email_host_value.get(), email_parameter_list[subject], email_parameter_list[cc_emails],
-                   email_parameter_list[message])
+        auto_grade(student_list_full_path, gradebook_full_path, assignments_full_path, test_run_value.get(),
+                   percent_threshold_value.get(), int(minimum_missing_spinbox.get()), sender_email_entry.get(),
+                   sender_password_entry.get(), email_host_value.get(), email_parameter_list[subject],
+                   email_parameter_list[cc_emails], email_parameter_list[message])
 
     root.resizable(width=False, height=False)
     root.mainloop()
-
-
-def auto_grade(students, grades, test_run, min_missing, sender_email, sender_password, host, subject, cc, message):
-    print(students)
-    print(grades)
-    print(test_run)
-    print(min_missing)
-    print(sender_email)
-    print(sender_password)
-    print(host)
-    print(subject)
-    print(subject)
-    print(cc)
-    print(message)
-    pass
 
 
 def email_format_window(root, email_parameter_list):
@@ -249,7 +309,7 @@ def email_format_window(root, email_parameter_list):
                                                       'and \'[ASSIGNMENTS]\' will insert the missing assignment list')
     email_label.grid(row=2, columnspan=2)
 
-    email = tkinter.Text(email_message_frame, wrap="word")
+    email = tkinter.Text(email_message_frame, wrap='word')
     email.insert(tkinter.INSERT, email_parameter_list[message])
     email.grid(row=3, column=0, columnspan=2)
 
@@ -282,4 +342,88 @@ def email_format_window(root, email_parameter_list):
     email_format_toplevel.grab_set()
 
 
-main()
+def auto_grade(students, grades, assignments, test_run, percent, min_missing, sender, password, host, subject, cc, msg):
+    # print(students)         # Input
+    # print(grades)           # Turn into CSV
+    # print(assignments)      # Input
+    # print(percent)          # Input
+    # print(test_run)         # Input
+    # print(min_missing)      # Input
+    # print(sender)           # Input
+    # print(password)         # Input
+    # print(host)             # Get host settings (SMTP server/port)
+    # print(subject)          # Input                 }
+    # print(cc)               # Extract emails        } combine into html email?
+    # print(msg)          # Figure out inserts    }
+    # Extract list of assignments each student is missing
+    #
+    # Create final email object (mimetext?)
+    with open(grades) as grade_file:
+        grade_list = list(csv.reader(grade_file))
+    assignments_list = extract_assignments_list(assignments, percent, grade_list)
+    students_list = extract_students_list(students, grade_list)
+    missing_assignments_list = extract_missing_assignments(students_list, grade_list, assignments_list)
+    email_setup(sender, password, host)
+    #TODO
+
+
+def extract_assignments_list(assignments, percent, grade_list):
+    assignments_list = []
+    if assignments != defaults['Assignments Path']:
+        with open(assignments) as assignments_file:
+            assignments_data = list(csv.reader(assignments_file))
+        for assignment in range(1,len(assignments_data)):
+            if int(float(assignments_data[assignment][1])) >= percent: # Index 1 is percent submitted
+                assignments_list.append(assignments_data[assignment][0]) # Index 0 is assignment name
+    else:
+        categories = grade_list[0]
+        emails_column = categories.index('Email address')
+        for category in range(emails_column + 1, len(categories)):
+            if not contains_excluded_phrase(categories[category], defaults):
+                percent_complete = calculate_percent_complete(grade_list, category)
+                if percent_complete >= percent:
+                    assignments_list.append(categories[category])
+    return assignments_list
+
+
+def extract_students_list(students, grade_list):
+    if students == defaults['Student List Path']:
+        students_list = []
+        emails_index = grade_list[0].index('Email address')
+        for student in range(1,len(grade_list)):
+            email = grade_list[student][emails_index]
+            at = email.index('@')
+            students_list.append(email[:at])
+    else:
+        with open(students) as students_file:
+            students_list = students_file.read().split('\n')
+    return students_list
+
+
+def extract_missing_assignments(students_list, grade_list, assignments_list): # TODO
+    assignments_index = []
+    categories = grade_list[0]
+    for assignment in assignments_list:
+        assignments_index.append(categories.index(assignment))
+    email_index = categories.index('Email address')
+    student_assignment_dict = {}
+    student_index = 1
+    for student in students_list:
+        while student not in grade_list[student_index][email_index]:
+            student_index += 1
+        missing_assignments = []
+        for assignment in assignments_index:
+            grade = grade_list[student_index][assignment]
+            if (grade == '-') or (grade == '0'):
+                missing_assignments.append(categories[assignment])
+        student_assignment_dict[student] = missing_assignments
+    return student_assignment_dict
+
+
+def email_setup(sender_email, sender_password, host):
+    #TODO
+    pass
+
+
+# main()
+test_email_host(defaults, 'Yahoo', None, None)
