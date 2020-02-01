@@ -6,12 +6,15 @@ import tkinter
 from tkinter import ttk, filedialog
 import csv
 import smtplib
+from email.message import EmailMessage
 
 # TODO fix duped code between both scripts
 # TODO standardize padding and such
 # TODO remove unnecessary lambdas
 
 defaults = extract_defaults()
+
+
 def main():
 
     root = tkinter.Tk()
@@ -364,7 +367,9 @@ def auto_grade(students, grades, assignments, test_run, percent, min_missing, se
     students_list = extract_students_list(students, grade_list)
     missing_assignments_list = extract_missing_assignments(students_list, grade_list, assignments_list)
     server = server_setup(sender, password, host)
-    #TODO
+    email_parameters = {'message': msg.translate({ord('\n'): None}), 'name idx': msg.index('[NAME]'),
+                        'assignments idx': msg.index('[ASSIGNMENTS]'), 'subject': subject, 'cc_emails': cc.split(',')}
+    send_emails(email_parameters, server, grade_list, missing_assignments_list, test_run, min_missing)
 
 
 def extract_assignments_list(assignments, percent, grade_list):
@@ -436,6 +441,10 @@ def server_setup(sender_email, sender_password, host):
             print('You need an app password to use gmail with this program:' +
                   '\nhttps://support.google.com/accounts/answer/185833')
     return server
+
+
+def send_emails(email_parameters, server, grade_list, test_run, minimum_missing):
+    pass
 
 
 main()

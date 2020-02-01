@@ -166,8 +166,7 @@ def send_reminder(name, target_email, missing_list, server):
     server.sendmail(my_email, target_email, msg.as_string())#target_email, msg.as_string())
 
 
-dry_run = True
+dry_run = False
 username = "kellyzc"
 my_pass = getpass.getpass("Enter your password: ")
 process_gradebook()
-https://docs.python.org/3/library/email.examples.html
