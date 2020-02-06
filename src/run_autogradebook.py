@@ -367,9 +367,9 @@ def auto_grade(students, grades, assignments, test_run, percent, min_missing, se
     students_list = extract_students_list(students, grade_list)
     missing_assignments_list = extract_missing_assignments(students_list, grade_list, assignments_list)
     server = server_setup(sender, password, host)
-    email_parameters = {'message': msg.translate({ord('\n'): None}), 'name idx': msg.index('[NAME]'),
-                        'assignments idx': msg.index('[ASSIGNMENTS]'), 'subject': subject, 'cc_emails': cc.split(',')}
-    send_emails(email_parameters, server, grade_list, missing_assignments_list, test_run, min_missing)
+    email_parameters = {'message': msg.translate({ord('\n'): None}), 'subject': subject, 'cc emails': cc.split(','),
+                        'sender email': sender}
+    send_emails(email_parameters, server, missing_assignments_list, test_run, min_missing)
 
 
 def extract_assignments_list(assignments, percent, grade_list):
@@ -411,18 +411,21 @@ def extract_missing_assignments(students_list, grade_list, assignments_list): # 
     for assignment in assignments_list:
         assignments_index.append(categories.index(assignment))
     email_index = categories.index('Email address')
-    student_assignment_dict = {}
+    first_name_index = categories.index('First name')
+    last_name_index = categories.index('Last name') # TODO: defaults
+    student_assignment_list = []
     student_index = 1
     for student in students_list:
         while student not in grade_list[student_index][email_index]:
             student_index += 1
-        missing_assignments = []
+        missing_assignments = [grade_list[student_index][email_index], grade_list[student_index][first_name_index]+' '+
+                               grade_list[student_index][last_name_index]]
         for assignment in assignments_index:
             grade = grade_list[student_index][assignment]
             if (grade == '-') or (grade == '0'):
                 missing_assignments.append(categories[assignment])
-        student_assignment_dict[student] = missing_assignments
-    return student_assignment_dict
+        student_assignment_list.append(missing_assignments)
+    return student_assignment_list
 
 
 def server_setup(sender_email, sender_password, host):
@@ -443,8 +446,23 @@ def server_setup(sender_email, sender_password, host):
     return server
 
 
-def send_emails(email_parameters, server, grade_list, test_run, minimum_missing):
-    pass
+def send_emails(email_parameters, server, missing_assignments, test_run, minimum_missing):
+    for assignments_list in missing_assignments:
+        if len(assignments_list)-2 >= minimum_missing:
+            email = EmailMessage()
+            email['Subject'] = email_parameters['subject']
+            email['From'] = email_parameters['sender email']
+            email['To'] = assignments_list[0]   # Index 0 is the student email
+            email['CC'] = email_parameters['cc emails']
+            assignments = '<p>' + assignments_list[3:].join('<br>') + '</p>'
+            message = email_parameters['message']
+            message = message.replace('[NAME]', assignments_list[1]).replace('[ASSIGNMENTS]', assignments)
+            email.set_content(message)
+            if test_run:
+                server.send_message(email, email_parameters['sender email'], email_parameters['sender email'])
+            else:
+                server.send_message(email, email_parameters['sender email'], assignments_list[0])
+    server.quit()
 
 
 main()
