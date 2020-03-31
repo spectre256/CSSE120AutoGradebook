@@ -6,6 +6,7 @@ import tkinter
 from tkinter import ttk, filedialog
 import csv
 import smtplib
+import ssl
 from email.message import EmailMessage
 
 # TODO fix duped code between both scripts
@@ -431,10 +432,11 @@ def extract_missing_assignments(students_list, grade_list, assignments_list): # 
 def server_setup(sender_email, sender_password, host):
     smtp_server = defaults[host + ' SMTP']
     port = int(defaults[host + ' Port'])
-    server = smtplib.SMTP_SSL(smtp_server, port)
-    server.connect(smtp_server, port)
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+    server = smtplib.SMTP(smtp_server, port)
+    # server.connect(smtp_server, port)
     server.ehlo()
-    server.starttls()
+    server.starttls(context=context)
     server.ehlo()
     try:
         server.login(sender_email, sender_password)
@@ -454,7 +456,7 @@ def send_emails(email_parameters, server, missing_assignments, test_run, minimum
             email['From'] = email_parameters['sender email']
             email['To'] = assignments_list[0]   # Index 0 is the student email
             email['CC'] = email_parameters['cc emails']
-            assignments = '<p>' + assignments_list[3:].join('<br>') + '</p>'
+            assignments = '<p>' + '<br>'.join(assignments_list[3:]) + '</p>'
             message = email_parameters['message']
             message = message.replace('[NAME]', assignments_list[1]).replace('[ASSIGNMENTS]', assignments)
             email.set_content(message)
