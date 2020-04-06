@@ -17,28 +17,11 @@ A pound sign indicates a line with the name of an option, and a dash indicates a
 #Email Host
 \\Outlook
 #Email Subject
-\\Missing CSSE120 Assignments
+\\Not yet complete assignments
 #CC Emails
-\\ex1@email.com,ex2@email.com,etc.
+\\
 #Email Message
-\\<html><head></head><body>
-<p>
-This email was sent automatically, replies will be ignored.
-</p>
-<p>
-Hello [NAME],<br>
-You are currently missing:<br>
-</p>
-<p>
-[ASSIGNMENTS]
-</p>
-<p>
-Please submit these as soon as you can. Talk to your professor if you have any questions. Remember, you must turn in ALL assignments to pass the class!
-</p>
-<p>
-Thank you,<br>
-CSSE120 Grader
-</p></body></html>
+\\Hello [NAME], for CSSE484, you are currently missing:  [ASSIGNMENTS]    These assignments are not officially late since there are no late penalties for them, but they do need to be completed so you can stay on track. Please get them done and submitted to Moodle as soon as you get the opportunity.  Thank you, David Fisher
 #Gradebook Path
 \\None Selected
 #Student List Path

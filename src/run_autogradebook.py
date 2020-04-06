@@ -456,7 +456,7 @@ def send_emails(email_parameters, server, missing_assignments, test_run, minimum
             email['From'] = email_parameters['sender email']
             email['To'] = assignments_list[0]   # Index 0 is the student email
             email['CC'] = email_parameters['cc emails']
-            assignments = '<p>' + '<br>'.join(assignments_list[3:]) + '</p>'
+            assignments = ',   '.join(assignments_list[2:])
             message = email_parameters['message']
             message = message.replace('[NAME]', assignments_list[1]).replace('[ASSIGNMENTS]', assignments)
             email.set_content(message)
