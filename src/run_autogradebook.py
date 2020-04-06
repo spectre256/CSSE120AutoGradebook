@@ -454,7 +454,10 @@ def send_emails(email_parameters, server, missing_assignments, test_run, minimum
             email = EmailMessage()
             email['Subject'] = email_parameters['subject']
             email['From'] = email_parameters['sender email']
-            email['To'] = assignments_list[0]   # Index 0 is the student email
+            if test_run:
+                email['To'] = email['From']
+            else:
+                email['To'] = assignments_list[0]  # Index 0 is the student email
             email['CC'] = email_parameters['cc emails']
             assignments = ',   '.join(assignments_list[2:])
             message = email_parameters['message']
@@ -464,6 +467,7 @@ def send_emails(email_parameters, server, missing_assignments, test_run, minimum
                 server.send_message(email, email_parameters['sender email'], email_parameters['sender email'])
             else:
                 server.send_message(email, email_parameters['sender email'], assignments_list[0])
+
     server.quit()
 
 
