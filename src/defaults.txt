@@ -3,7 +3,7 @@ Do not leave any empty lines after the last option
 A pound sign indicates a line with the name of an option, and a dash indicates a value.
 
 #Default Percentage Threshold
-\\70
+\\50
 #Update Student List
 \\0
 #Update Assignments
@@ -13,7 +13,7 @@ A pound sign indicates a line with the name of an option, and a dash indicates a
 #Minimum Missing Assignments Maximum
 \\100
 #Minimum Missing Assignments Default
-\\5
+\\1
 #Email Host
 \\Outlook
 #Email Subject
@@ -21,7 +21,7 @@ A pound sign indicates a line with the name of an option, and a dash indicates a
 #CC Emails
 \\
 #Email Message
-\\Hello [NAME], for CSSE484, you are currently missing:  [ASSIGNMENTS]    These assignments are not officially late since there are no late penalties for them, but they do need to be completed so you can stay on track. Please get them done and submitted to Moodle as soon as you get the opportunity.  Thank you, David Fisher
+\\Hello [NAME], for CSSE120, you are currently missing:  [ASSIGNMENTS]    These assignments are not officially late since there are no late penalties for them, but they do need to be completed so you can stay on track. Please get them done and submitted to Moodle as soon as you get the opportunity.  Thank you, David Fisher
 #Gradebook Path
 \\None Selected
 #Student List Path
