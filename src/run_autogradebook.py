@@ -13,6 +13,20 @@ from email.message import EmailMessage
 # TODO standardize padding and such
 # TODO remove unnecessary lambdas
 
+# Notes to Dr. Fisher:
+#   Create & use App Passwords
+#      Go to your Google Account.
+#      Select Security.
+#      Under "Signing in to Google," select App Passwords. You may need to sign in. ...
+#      At the bottom, choose Select app and choose the app you using Select device and choose the device you're using. ...
+#      Follow the instructions to enter the App Password. ...
+#      Tap Done.
+# email --> fisherds@gmail.com
+# Password --> 
+# Server --> Gmail
+
+# that app specific password was created for my Mac on 11/7/22, hopefully I can reuse it.
+
 defaults = extract_defaults()
 
 
@@ -430,6 +444,9 @@ def extract_missing_assignments(students_list, grade_list, assignments_list): # 
 
 
 def server_setup(sender_email, sender_password, host):
+    print(f"sender_email {sender_email}")
+    print(f"len(sender_password) = {len(sender_password)}")
+    print(f"host {host}")
     smtp_server = defaults[host + ' SMTP']
     port = int(defaults[host + ' Port'])
     context = ssl.SSLContext(ssl.PROTOCOL_TLS)
