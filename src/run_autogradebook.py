@@ -8,6 +8,7 @@ import csv
 import smtplib
 import ssl
 from email.message import EmailMessage
+# from string import strip
 
 # TODO fix duped code between both scripts
 # TODO standardize padding and such
@@ -92,7 +93,9 @@ def main():
     # Sender login info
     sender_email_label = ttk.Label(email_options_frame, text='Sender Email:')
     sender_email_label.grid(row=0, column=0, sticky='w')
-    sender_email_entry = ttk.Entry(email_options_frame)
+    sender_email_variable = tkinter.StringVar()
+    config.attach_var(sender_email_variable, "Sender Email")
+    sender_email_entry = ttk.Entry(email_options_frame, textvariable=sender_email_variable)
     sender_email_entry.grid(row=0, column=1)
 
     sender_password_label = ttk.Label(email_options_frame, text='Sender Password:')
@@ -312,16 +315,16 @@ def email_format_window(root, email_parameter_list):
     subject_label.grid(row=0, column=0, sticky='w')
 
     subject_value = tkinter.StringVar()
+    config.attach_var(subject_value, "Email Subject")
     subject_entry = ttk.Entry(email_message_frame, textvariable=subject_value)
-    subject_value.set(email_parameter_list[subject])
     subject_entry.grid(row=0, column=1, sticky='ew')
 
     cc_emails_label = ttk.Label(email_message_frame, text='CC: ')
     cc_emails_label.grid(row=1, column=0, sticky='w')
 
     cc_emails_value = tkinter.StringVar()
+    config.attach_var(cc_emails_value, "CC Emails")
     cc_emails_entry = ttk.Entry(email_message_frame, textvariable=cc_emails_value)
-    cc_emails_value.set(email_parameter_list[cc_emails])
     cc_emails_entry.grid(row=1, column=1, sticky='ew')
 
     email_label = ttk.Label(email_message_frame, text='\'[NAME]\' will insert a student\'s name,' +
@@ -334,6 +337,7 @@ def email_format_window(root, email_parameter_list):
 
     # action buttons
     def ok_helper():
+        config.set("Email Message", email.get("1.0", "end-1c"))
         nonlocal email_parameter_list
         email_parameter_list[0:2] = [subject_value.get(), cc_emails_value.get(), email.get('0.0', tkinter.END)]
         email_format_toplevel.grab_release()

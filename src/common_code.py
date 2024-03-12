@@ -14,12 +14,15 @@ class Config:
         if not self.defaults_file.exists() or self.defaults_file.is_dir():
             raise Exception(f"Defaults file '{self.defaults_file}' not found")
 
+        if self.config_file.is_dir():
+            raise Exception(f"Config file '{self.defaults_file}' is a directory, not a readable file")
+
         # Write empty JSON object if the config doesn't already exist
         if not self.config_file.exists():
             with open(self.config_file, "w") as config:
                 config.write("{}")
 
-        with open(self.defaults_file) as defaults, open("config.json") as config:
+        with open(self.defaults_file) as defaults, open(self.config_file) as config:
             self.defaults = json.load(defaults)
             self.config = {**self.defaults, **json.load(config)}
 
@@ -35,10 +38,7 @@ class Config:
     def attach_var(self, var, key):
         var.set(self.get(key))
 
-        def setter(*_):
-            self.set(key, var.get())
-
-        var.trace_add("write", callback=setter)
+        var.trace_add("write", callback=lambda *_: self.set(key, var.get()))
 
     # Writes values that differ from the defaults to the config file
     def write(self):
