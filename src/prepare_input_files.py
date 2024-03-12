@@ -1,7 +1,7 @@
 # Made by Zach Kelly
 # Last updated 1/24/20
 
-from src.common_code import *
+from common_code import *
 import tkinter
 from tkinter import ttk, filedialog
 import csv

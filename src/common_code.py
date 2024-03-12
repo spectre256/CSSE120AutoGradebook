@@ -1,26 +1,58 @@
+import json
 import smtplib
+from pathlib import Path
+
+class Config:
+    def __init__(self, defaults_filename, config_filename):
+        self.defaults_file = Path(defaults_filename)
+        self.config_file = Path(config_filename)
+
+        self.extract_config()
 
 
-def extract_defaults():
-    defaults_dict = {}
-    with open('defaults.txt') as defaults:
-        defaults_string = defaults.read()
-        defaults_list = defaults_string.split('#')
-        # The first item in the list is just formatting instructions, and can be discarded
-        for option in defaults_list[1:]:
-            # This extracts the option name and the corresponding value, excluding '#' and '\n'
-            name_and_value = option.split('\\\\')
-            # Name is in index 0, value is in index 1
-            defaults_dict[name_and_value[0][:-1]] = name_and_value[1][:-1]
-    return defaults_dict
+    def extract_config(self):
+        if not self.defaults_file.exists() or self.defaults_file.is_dir():
+            raise Exception(f"Defaults file '{self.defaults_file}' not found")
+
+        # Write empty JSON object if the config doesn't already exist
+        if not self.config_file.exists():
+            with open(self.config_file, "w") as config:
+                config.write("{}")
+
+        with open(self.defaults_file) as defaults, open("config.json") as config:
+            self.defaults = json.load(defaults)
+            self.config = {**self.defaults, **json.load(config)}
+
+
+    def get(self, key):
+        return self.config[key]
+
+
+    def set(self, key, value):
+        self.config[key] = value
+
+
+    def attach_var(self, var, key):
+        var.set(self.get(key))
+
+        def setter(*_):
+            self.set(key, var.get())
+
+        var.trace_add("write", callback=setter)
+
+    # Writes values that differ from the defaults to the config file
+    def write(self):
+        config = {key: value for key, value in self.config.items() if not key in self.defaults or self.defaults[key] != value}
+        with open(self.config_file, "w") as config_file:
+            json.dump(config, config_file)
 
 
 def contains_excluded_phrase(category, defaults):
-    excluded_category_phrases = defaults['Excluded Category Phrases'].split(',')
-    for phrase in excluded_category_phrases:
+    for phrase in defaults['Excluded Category Phrases']:
         if phrase in category:
-            return 1
-    return 0
+            return True
+
+    return False
 
 
 def calculate_percent_complete(grade_data, assignment_index):

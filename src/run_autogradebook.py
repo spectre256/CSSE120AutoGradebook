@@ -27,7 +27,7 @@ from email.message import EmailMessage
 
 # that app specific password was created for my Mac on 11/7/22, hopefully I can reuse it.
 
-defaults = extract_defaults()
+config = Config("defaults.json", "config.json")
 
 
 def main():
@@ -52,7 +52,7 @@ def main():
     test_run_label.grid(row=0, column=1)
 
     test_run_value = tkinter.BooleanVar()
-    test_run_value.set(int(defaults['Test Run']))
+    config.attach_var(test_run_value, "Test Run")
     test_run_list_checkbutton = ttk.Checkbutton(misc_options_frame, variable=test_run_value)
     test_run_list_checkbutton.grid(row=1, column=1)
 
@@ -65,16 +65,16 @@ def main():
             int(minimum_missing_spinbox.get())
         except ValueError:
             if minimum_missing_spinbox.get() != '':
-                minimum_missing_spinbox.set(int(defaults['Minimum Missing Assignments Default']))
+                minimum_missing_spinbox.set(config.get("Minimum Missing Assignments Default"))
             return
-        if int(minimum_missing_spinbox.get()) > int(defaults['Minimum Missing Assignments Maximum']):
-            minimum_missing_spinbox.set(int(defaults['Minimum Missing Assignments Maximum']))
+        if int(minimum_missing_spinbox.get()) > config.get("Minimum Missing Assignments Maximum"):
+            minimum_missing_spinbox.set(config.get("Minimum Missing Assignments Maximum"))
 
     minimum_missing_value = tkinter.IntVar()
+    config.attach_var(minimum_missing_value, "Minimum Missing Assignments Default")
     minimum_missing_spinbox = ttk.Spinbox(misc_options_frame, from_=0,
-                                          to=int(defaults['Minimum Missing Assignments Maximum']),
+                                          to=config.get("Minimum Missing Assignments Maximum"),
                                           textvariable=minimum_missing_value)
-    minimum_missing_spinbox.set(int(defaults['Minimum Missing Assignments Default']))
     minimum_missing_spinbox.grid(row=1, column=0)
     minimum_missing_value.trace('w', lambda *args: minimum_missing_helper())
 
@@ -103,13 +103,13 @@ def main():
     # Email host
     email_host_label = ttk.Label(email_options_frame, text='Email Host:')
     email_host_label.grid(row=0, column=2)
-    # TODO move host list to defaults
-    email_host_value = ttk.Combobox(email_options_frame, values=['Gmail', 'Outlook'], state='readonly')#, 'Yahoo'], state='readonly')
-    email_host_value.set(defaults['Email Host'])
+    email_host_variable = tkinter.StringVar()
+    config.attach_var(email_host_variable, "Email Host")
+    email_host_value = ttk.Combobox(email_options_frame, values=config.get("Host List"), state="readonly", textvariable=email_host_variable)#, "Yahoo"], state="readonly")
     email_host_value.grid(row=1, column=2)
 
     # Email message format
-    email_parameter_list = [defaults['Email Subject'], defaults['CC Emails'], str(defaults['Email Message'])]
+    email_parameter_list = [config.get("Email Subject"), config.get("CC Emails"), config.get("Email Message")]
     email_format_button = ttk.Button(email_options_frame, text='Change Message Format',
                                      command=lambda: email_format_window(root, email_parameter_list))
     email_format_button.grid(row=2, columnspan=3, pady=10)
@@ -126,7 +126,7 @@ def main():
 
     # Gradebook path selection button and labels
     gradebook_file = tkinter.StringVar()
-    gradebook_file.set(defaults['Gradebook Path'])
+    config.attach_var(gradebook_file, "Gradebook Path")
     gradebook_path_label1 = ttk.Label(gradebook_path_selection_frame, text='Current Gradebook Path:')
     gradebook_path_label1.grid(row=0, column=0, sticky='w')
 
@@ -135,7 +135,7 @@ def main():
     gradebook_path_label2.grid(row=1, columnspan=3, pady=20)
 
     # TODO: add error handling
-    gradebook_full_path = defaults['Gradebook Path']
+    gradebook_full_path = config.get("Gradebook Path")
     gradebook_path_button = ttk.Button(gradebook_path_selection_frame, text='Select File',
                                        command=lambda: gradebook_file.set(get_gradebook_path()))
     gradebook_path_button.grid(row=0, column=1)
@@ -145,7 +145,7 @@ def main():
         max_path_characters = 65
         gradebook_path = tkinter.filedialog.askopenfilename(filetypes=[('csv', '.csv')], initialdir='.')
         if gradebook_path == '':
-            gradebook_path = defaults['Gradebook Path']
+            gradebook_path = config.get("Gradebook Path")
         gradebook_full_path = gradebook_path
         if len(gradebook_path) > max_path_characters:
             gradebook_path = '...'+gradebook_path[len(gradebook_path)-max_path_characters+3:len(gradebook_path)]
@@ -163,7 +163,7 @@ def main():
 
     # Student list path selection button and labels
     student_list_file = tkinter.StringVar()
-    student_list_file.set(defaults['Student List Path'])
+    config.attach_var(student_list_file, "Student List Path")
     student_list_path_label1 = ttk.Label(student_list_path_selection_frame, text='Current Student List Path:')
     student_list_path_label1.grid(row=0, column=0, sticky='w')
 
@@ -172,7 +172,7 @@ def main():
     student_list_path_label2.grid(row=1, columnspan=3, pady=20)
 
     # TODO: add error handling
-    student_list_full_path = defaults['Student List Path']
+    student_list_full_path = config.get("Student List Path")
     student_list_path_button = ttk.Button(student_list_path_selection_frame, text='Select File',
                                           command=lambda: student_list_file.set(get_student_list_path()))
     student_list_path_button.grid(row=0, column=1)
@@ -182,7 +182,7 @@ def main():
         max_path_characters = 65
         student_list_path = tkinter.filedialog.askopenfilename(filetypes=[('txt', '.txt')], initialdir='.')
         if student_list_path == '':
-            student_list_path = defaults['Student List Path']
+            student_list_path = config.get("Student List Path")
         student_list_full_path = student_list_path
         if len(student_list_path) > max_path_characters:
             student_list_path = '...' + student_list_path[
@@ -201,7 +201,7 @@ def main():
 
     # Assignment path selection button and labels
     assignments_file = tkinter.StringVar()
-    assignments_file.set(defaults['Assignments Path'])
+    config.attach_var(assignments_file, "Assignments Path")
     assignments_path_label1 = ttk.Label(assignments_path_selection_frame, text='Current Assignments Path:')
     assignments_path_label1.grid(row=0, column=0, sticky='w')
 
@@ -210,7 +210,7 @@ def main():
     assignments_path_label2.grid(row=1, columnspan=3, pady=20)
 
     # TODO: add error handling
-    assignments_full_path = defaults['Assignments Path']
+    assignments_full_path = config.get("Assignments Path")
     assignments_path_button = ttk.Button(assignments_path_selection_frame, text='Select File',
                                           command=lambda: assignments_file.set(get_assignments_path()))
     assignments_path_button.grid(row=0, column=1)
@@ -220,7 +220,7 @@ def main():
         max_path_characters = 65
         assignments_path = tkinter.filedialog.askopenfilename(filetypes=[('csv', '.csv')], initialdir='.')
         if assignments_path == '':
-            assignments_path = defaults['Assignments Path']
+            assignments_path = config.get("Assignments Path")
         assignments_full_path = assignments_path
         if len(assignments_path) > max_path_characters:
             assignments_path = '...' + assignments_path[
@@ -240,10 +240,10 @@ def main():
     # Assignments file selection toggles the percentage threshold scale
     def check_percent_threshold_scale_active(*args):
         nonlocal percent_threshold_value_label
-        if assignments_file.get() != defaults['Assignments Path']:
-            percent_threshold_scale.set(int(defaults['Default Percentage Threshold']))
-            percent_threshold_value_label.config(text=str(int(defaults['Default Percentage Threshold'])) + '%')
-            percent_threshold_value.set(int(defaults['Default Percentage Threshold']))
+        if assignments_file.get() != config.get("Assignments Path"):
+            percent_threshold_scale.set(config.get("Default Percentage Threshold"))
+            percent_threshold_value_label.config(text=str(config.get("Default Percentage Threshold")) + '%')
+            percent_threshold_value.set(config.get("Default Percentage Threshold"))
 
     assignments_file.trace('w', check_percent_threshold_scale_active)
 
@@ -252,10 +252,10 @@ def main():
     percent_threshold_value_label.grid(row=0, column=1, rowspan=2)
 
     percent_threshold_value = tkinter.IntVar()
+    config.attach_var(percent_threshold_value, "Default Percentage Threshold")
     percent_threshold_scale = ttk.Scale(threshold_frame, from_=0, to=100,
                                         variable=percent_threshold_value, command=lambda value:
                                         percent_threshold_value_label.config(text=str(int(float(value))) + '%'))
-    percent_threshold_scale.set(int(defaults['Default Percentage Threshold']))
     percent_threshold_scale.grid(row=1)
     percent_threshold_value.trace('w', check_percent_threshold_scale_active)
 
@@ -285,6 +285,7 @@ def main():
         message = 2
 
         root.quit()
+        config.write()
         auto_grade(student_list_full_path, gradebook_full_path, assignments_full_path, test_run_value.get(),
                    percent_threshold_value.get(), int(minimum_missing_spinbox.get()), sender_email_entry.get(),
                    sender_password_entry.get(), email_host_value.get(), email_parameter_list[subject],
@@ -389,7 +390,7 @@ def auto_grade(students, grades, assignments, test_run, percent, min_missing, se
 
 def extract_assignments_list(assignments, percent, grade_list):
     assignments_list = []
-    if assignments != defaults['Assignments Path']:
+    if assignments != config.get("Assignments Path"):
         with open(assignments) as assignments_file:
             assignments_data = list(csv.reader(assignments_file))
         for assignment in range(1,len(assignments_data)):
@@ -407,7 +408,7 @@ def extract_assignments_list(assignments, percent, grade_list):
 
 
 def extract_students_list(students, grade_list):
-    if students == defaults['Student List Path']:
+    if students == config.get("Student List Path"):
         students_list = []
         emails_index = grade_list[0].index('Email address')
         for student in range(1,len(grade_list)):

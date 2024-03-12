@@ -1,11 +1,3 @@
-src/inputs
-src/outputs
-.idea/
-venv
-venv2
-
-
-
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
+**/*.csv
+**/config.json
+src/__pycache__/

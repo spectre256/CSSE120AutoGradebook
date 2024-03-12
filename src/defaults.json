@@ -1,0 +1,23 @@
+{
+    "Default Percentage Threshold": 50,
+    "Update Student List": 0,
+    "Update Assignments": 0,
+    "Test Run": true,
+    "Minimum Missing Assignments Maximum": 100,
+    "Minimum Missing Assignments Default": 1,
+    "Email Host": "Outlook",
+    "Email Subject": "Not yet complete assignments",
+    "CC Emails": "",
+    "Email Message": "Hello [NAME], for CSSE120, you are currently missing:  [ASSIGNMENTS]    These assignments are not officially late since there are no late penalties for them, but they do need to be completed so you can stay on track. Please get them done and submitted to Moodle as soon as you get the opportunity.  Thank you, David Fisher",
+    "Gradebook Path": "None Selected",
+    "Student List Path": "All Students",
+    "Assignments Path": "Calculate Using Selected Percent",
+    "Excluded Category Phrases": ["total", "Last downloaded from this course"],
+    "Host List": ["Gmail", "Outlook"],
+    "Gmail SMTP": "smtp.gmail.com",
+    "Gmail Port": 587,
+    "Outlook SMTP": "smtp.office365.com",
+    "Outlook Port": 587,
+    "Yahoo SMTP (doesn't work right now)": "smtp.mail.yahoo.com",
+    "Yahoo Port": 587
+}
